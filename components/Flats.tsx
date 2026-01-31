@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, UserRole, Flat } from '../types';
 
 interface FlatsProps {
@@ -7,28 +7,36 @@ interface FlatsProps {
 
 const Flats: React.FC<FlatsProps> = ({ user }) => {
   const isOwner = user.role === UserRole.OWNER;
-  const [flats, setFlats] = useState<Flat[]>([
-    { id: '1', name: 'A-101', ownerId: 'owner-1', tenantId: 'tenant-1', cost: 15000, description: 'Luxury 2BHK' },
-    { id: '2', name: 'A-102', ownerId: 'owner-1', cost: 12000, description: 'Standard 2BHK' },
-    { id: '3', name: 'B-201', ownerId: 'owner-1', tenantId: 'tenant-2', cost: 25000, description: 'Premium 3BHK' },
-  ]);
-
+  const [flats, setFlats] = useState<Flat[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newFlat, setNewFlat] = useState({ name: '', cost: 0, description: '' });
 
-  const handleAddFlat = (e: React.FormEvent) => {
-    e.preventDefault();
-    const flatToAdd: Flat = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: newFlat.name,
-      cost: Number(newFlat.cost),
-      description: newFlat.description,
-      ownerId: user.id
-    };
-    setFlats([...flats, flatToAdd]);
-    setShowAddModal(false);
-    setNewFlat({ name: '', cost: 0, description: '' });
+  useEffect(() => {
+    fetchFlats();
+  }, []);
+
+  const fetchFlats = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/api/flats');
+      const data = await response.json();
+      setFlats(data);
+    } catch (err) {
+      console.error("Failed to fetch flats", err);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const handleAddFlat = async (e: React.FormEvent) => {
+    e.preventDefault();
+    // Logic to call POST /api/flats would go here
+    const mockId = Math.random().toString(36).substr(2, 9);
+    setFlats([...flats, { ...newFlat, id: mockId, ownerId: user.id }]);
+    setShowAddModal(false);
+  };
+
+  if (loading) return <div className="text-center py-10">Loading flats...</div>;
 
   return (
     <div className="space-y-6">
@@ -40,7 +48,7 @@ const Flats: React.FC<FlatsProps> = ({ user }) => {
         {isOwner && (
           <button 
             onClick={() => setShowAddModal(true)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 transition-colors shadow-md"
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-700 shadow-md"
           >
             + Add New Flat
           </button>
@@ -52,7 +60,7 @@ const Flats: React.FC<FlatsProps> = ({ user }) => {
           <div key={flat.id} className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
             <div className="bg-slate-50 p-4 border-b border-slate-100 flex justify-between items-center">
               <span className="font-bold text-indigo-600 text-lg">{flat.name}</span>
-              <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${flat.tenantId ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'}`}>
+              <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase ${flat.tenantId ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-600'}`}>
                 {flat.tenantId ? 'Occupied' : 'Vacant'}
               </span>
             </div>
@@ -61,75 +69,45 @@ const Flats: React.FC<FlatsProps> = ({ user }) => {
                 <span className="text-slate-500 font-medium">Monthly Cost:</span>
                 <span className="text-slate-900 font-bold">৳{flat.cost}</span>
               </div>
-              <div className="text-sm">
-                <p className="text-slate-500 font-medium mb-1">Description:</p>
-                <p className="text-slate-700">{flat.description || 'No description available.'}</p>
-              </div>
-              <div className="pt-4 flex gap-2">
-                <button className="flex-1 bg-indigo-50 text-indigo-700 py-2 rounded font-semibold text-sm hover:bg-indigo-100 transition-colors">
-                  Details
-                </button>
-                {isOwner && (
-                  <button className="px-3 bg-slate-50 text-slate-400 py-2 rounded hover:bg-red-50 hover:text-red-500 transition-colors">
-                    🗑️
-                  </button>
-                )}
-              </div>
+              <p className="text-sm text-slate-600 h-10 overflow-hidden">{flat.description || 'No description available.'}</p>
+              <button className="w-full bg-indigo-50 text-indigo-700 py-2 rounded font-semibold text-sm hover:bg-indigo-100 transition-colors">
+                View Details
+              </button>
             </div>
           </div>
         ))}
       </div>
 
       {showAddModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-md w-full p-8 space-y-6 animate-in zoom-in-95 duration-200">
-            <h3 className="text-xl font-bold text-slate-900">Add New Flat Unit</h3>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-8 space-y-6">
+            <h3 className="text-xl font-bold text-slate-900">Add New Flat</h3>
             <form onSubmit={handleAddFlat} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Flat Number / Name</label>
-                <input 
-                  type="text" 
-                  required 
-                  className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="e.g. C-404"
-                  value={newFlat.name}
-                  onChange={e => setNewFlat({...newFlat, name: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Cost (৳)</label>
-                <input 
-                  type="number" 
-                  required 
-                  className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="12000"
-                  value={newFlat.cost}
-                  onChange={e => setNewFlat({...newFlat, cost: Number(e.target.value)})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
-                <textarea 
-                  className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="Amenities, floor level, etc."
-                  value={newFlat.description}
-                  onChange={e => setNewFlat({...newFlat, description: e.target.value})}
-                />
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button 
-                  type="button" 
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 px-4 py-2 bg-slate-100 text-slate-700 rounded-lg font-semibold"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold"
-                >
-                  Create Flat
-                </button>
+              <input 
+                type="text" 
+                required 
+                className="w-full px-4 py-2 border rounded-lg" 
+                placeholder="Flat Name (e.g. B-202)"
+                value={newFlat.name}
+                onChange={e => setNewFlat({...newFlat, name: e.target.value})}
+              />
+              <input 
+                type="number" 
+                required 
+                className="w-full px-4 py-2 border rounded-lg" 
+                placeholder="Monthly Cost (৳)"
+                value={newFlat.cost}
+                onChange={e => setNewFlat({...newFlat, cost: Number(e.target.value)})}
+              />
+              <textarea 
+                className="w-full px-4 py-2 border rounded-lg" 
+                placeholder="Description"
+                value={newFlat.description}
+                onChange={e => setNewFlat({...newFlat, description: e.target.value})}
+              />
+              <div className="flex gap-3">
+                <button type="button" onClick={() => setShowAddModal(false)} className="flex-1 px-4 py-2 bg-slate-100 rounded-lg">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold">Create</button>
               </div>
             </form>
           </div>

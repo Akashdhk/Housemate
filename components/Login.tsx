@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User, UserRole } from '../types';
 
@@ -8,25 +7,42 @@ interface LoginProps {
 
 const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>(UserRole.TENANT);
   const [isRegistering, setIsRegistering] = useState(false);
   const [name, setName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // In a real Oracle 11g backend, this would be a POST request.
-    // Here we simulate successful login/registration.
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      name: isRegistering ? name : (role === UserRole.OWNER ? 'Admin Owner' : 'John Tenant'),
-      email: email,
-      role: role,
-      flatId: role === UserRole.TENANT ? 'flat-1' : undefined
-    };
+    setLoading(true);
+    setError('');
 
-    localStorage.setItem('housemate_user', JSON.stringify(mockUser));
-    onLogin(mockUser);
+    const endpoint = isRegistering ? 'register' : 'login';
+    const payload = isRegistering 
+      ? { name, email, password, role } 
+      : { email, password };
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/auth/${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error(isRegistering ? 'Registration failed' : 'Invalid email or password');
+      }
+
+      const user: User = await response.json();
+      localStorage.setItem('housemate_user', JSON.stringify(user));
+      onLogin(user);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,6 +73,12 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </button>
           </div>
 
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {isRegistering && (
               <div>
@@ -66,7 +88,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                   placeholder="Enter your name"
                 />
               </div>
@@ -79,7 +101,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                 placeholder="you@example.com"
               />
             </div>
@@ -89,16 +111,19 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <input
                 type="password"
                 required
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-indigo-500 outline-none"
                 placeholder="••••••••"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200"
+              disabled={loading}
+              className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors shadow-lg disabled:opacity-50"
             >
-              {isRegistering ? 'Create Account' : 'Sign In'}
+              {loading ? 'Processing...' : (isRegistering ? 'Create Account' : 'Sign In')}
             </button>
           </form>
 
