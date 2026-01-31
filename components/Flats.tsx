@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User, UserRole, Flat } from '../types';
 
@@ -9,9 +8,9 @@ interface FlatsProps {
 const Flats: React.FC<FlatsProps> = ({ user }) => {
   const isOwner = user.role === UserRole.OWNER;
   const [flats, setFlats] = useState<Flat[]>([
-    { id: '1', name: 'A-101', ownerId: 'owner-1', tenantId: 'tenant-1', cost: 850, description: 'Luxury 2BHK' },
-    { id: '2', name: 'A-102', ownerId: 'owner-1', cost: 800, description: 'Standard 2BHK' },
-    { id: '3', name: 'B-201', ownerId: 'owner-1', tenantId: 'tenant-2', cost: 1200, description: 'Premium 3BHK' },
+    { id: '1', name: 'A-101', ownerId: 'owner-1', tenantId: 'tenant-1', cost: 15000, description: 'Luxury 2BHK' },
+    { id: '2', name: 'A-102', ownerId: 'owner-1', cost: 12000, description: 'Standard 2BHK' },
+    { id: '3', name: 'B-201', ownerId: 'owner-1', tenantId: 'tenant-2', cost: 25000, description: 'Premium 3BHK' },
   ]);
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -60,7 +59,7 @@ const Flats: React.FC<FlatsProps> = ({ user }) => {
             <div className="p-6 space-y-4">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500 font-medium">Monthly Cost:</span>
-                <span className="text-slate-900 font-bold">${flat.cost}</span>
+                <span className="text-slate-900 font-bold">৳{flat.cost}</span>
               </div>
               <div className="text-sm">
                 <p className="text-slate-500 font-medium mb-1">Description:</p>
@@ -98,12 +97,12 @@ const Flats: React.FC<FlatsProps> = ({ user }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Cost ($)</label>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Monthly Cost (৳)</label>
                 <input 
                   type="number" 
                   required 
                   className="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-indigo-500" 
-                  placeholder="800"
+                  placeholder="12000"
                   value={newFlat.cost}
                   onChange={e => setNewFlat({...newFlat, cost: Number(e.target.value)})}
                 />

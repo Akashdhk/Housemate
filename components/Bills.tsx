@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { User, UserRole, Bill, BillType, BillStatus } from '../types';
 
@@ -9,10 +8,10 @@ interface BillsProps {
 const Bills: React.FC<BillsProps> = ({ user }) => {
   const isOwner = user.role === UserRole.OWNER;
   const [bills, setBills] = useState<Bill[]>([
-    { id: '1', flatId: 'A-101', type: BillType.SERVICE_CHARGE, amount: 50, status: BillStatus.PAID, dueDate: '2023-10-15', billingMonth: 'October 2023' },
-    { id: '2', flatId: 'A-101', type: BillType.WATER, amount: 35, status: BillStatus.UNPAID, dueDate: '2023-10-15', billingMonth: 'October 2023' },
-    { id: '3', flatId: 'A-102', type: BillType.ELECTRICITY, amount: 65, status: BillStatus.OVERDUE, dueDate: '2023-09-15', billingMonth: 'September 2023' },
-    { id: '4', flatId: 'B-201', type: BillType.MAINTENANCE, amount: 120, status: BillStatus.PAID, dueDate: '2023-10-15', billingMonth: 'October 2023' },
+    { id: '1', flatId: 'A-101', type: BillType.SERVICE_CHARGE, amount: 2000, status: BillStatus.PAID, dueDate: '2023-10-15', billingMonth: 'October 2023' },
+    { id: '2', flatId: 'A-101', type: BillType.WATER, amount: 450, status: BillStatus.UNPAID, dueDate: '2023-10-15', billingMonth: 'October 2023' },
+    { id: '3', flatId: 'A-102', type: BillType.ELECTRICITY, amount: 1250, status: BillStatus.OVERDUE, dueDate: '2023-09-15', billingMonth: 'September 2023' },
+    { id: '4', flatId: 'B-201', type: BillType.MAINTENANCE, amount: 5000, status: BillStatus.PAID, dueDate: '2023-10-15', billingMonth: 'October 2023' },
   ]);
 
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
@@ -77,7 +76,7 @@ const Bills: React.FC<BillsProps> = ({ user }) => {
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600 font-medium">{bill.flatId}</td>
                   <td className="px-6 py-4 text-sm text-slate-500">{bill.billingMonth}</td>
-                  <td className="px-6 py-4 text-sm font-bold text-slate-900">${bill.amount}</td>
+                  <td className="px-6 py-4 text-sm font-bold text-slate-900">৳{bill.amount}</td>
                   <td className="px-6 py-4">
                     <span className={`px-2 py-1 rounded text-[10px] font-extrabold uppercase ${
                       bill.status === BillStatus.PAID ? 'bg-green-100 text-green-700' : 

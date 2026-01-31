@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { User, UserRole, BillStatus } from '../types';
 
@@ -12,20 +11,20 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   // Mock Data
   const stats = isOwner ? [
     { name: 'Total Flats', value: '24', icon: '🏢', color: 'bg-blue-500' },
-    { name: 'Total Revenue', value: '$12,450', icon: '💰', color: 'bg-green-500' },
+    { name: 'Total Revenue', value: '৳1,24,500', icon: '💰', color: 'bg-green-500' },
     { name: 'Unpaid Bills', value: '5', icon: '⚠️', color: 'bg-amber-500' },
     { name: 'Requests', value: '3', icon: '🔧', color: 'bg-red-500' },
   ] : [
-    { name: 'My Rent', value: '$850', icon: '🏠', color: 'bg-indigo-500' },
-    { name: 'Due This Month', value: '$120', icon: '📅', color: 'bg-amber-500' },
+    { name: 'My Rent', value: '৳15,000', icon: '🏠', color: 'bg-indigo-500' },
+    { name: 'Due This Month', value: '৳2,500', icon: '📅', color: 'bg-amber-500' },
     { name: 'Active Tickets', value: '1', icon: '🎫', color: 'bg-blue-500' },
     { name: 'Last Payment', value: 'Oct 02', icon: '✅', color: 'bg-green-500' },
   ];
 
   const recentBills = [
-    { id: '1', type: 'Service Charge', amount: 50, status: BillStatus.PAID, date: '2023-10-01' },
-    { id: '2', type: 'Water Bill', amount: 25, status: BillStatus.UNPAID, date: '2023-10-05' },
-    { id: '3', type: 'Electricity Bill', amount: 45, status: BillStatus.UNPAID, date: '2023-10-08' },
+    { id: '1', type: 'Service Charge', amount: 2000, status: BillStatus.PAID, date: '2023-10-01' },
+    { id: '2', type: 'Water Bill', amount: 500, status: BillStatus.UNPAID, date: '2023-10-05' },
+    { id: '3', type: 'Electricity Bill', amount: 1500, status: BillStatus.UNPAID, date: '2023-10-08' },
   ];
 
   return (
@@ -71,7 +70,7 @@ const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                 {recentBills.map((bill) => (
                   <tr key={bill.id} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4 text-sm font-medium text-slate-800">{bill.type}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600">${bill.amount}</td>
+                    <td className="px-6 py-4 text-sm text-slate-600">৳{bill.amount}</td>
                     <td className="px-6 py-4 text-sm">
                       <span className={`px-2 py-1 rounded-full text-xs font-bold ${
                         bill.status === BillStatus.PAID ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
