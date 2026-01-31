@@ -1,0 +1,7 @@
+{
+  "name": "Housemate - Property Management Suite",
+  "description": "A comprehensive platform for house owners and tenants to manage flat assignments, bill tracking (service charges, water bills), and maintenance requests with role-based access.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
